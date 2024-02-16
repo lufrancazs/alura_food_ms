@@ -2,7 +2,7 @@ package br.com.alurafood.payment.model;
 
 import java.math.BigDecimal;
 
-import br.com.alurafood.payment.enums.OrderStatus;
+import br.com.alurafood.payment.enums.PaymentStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -39,27 +39,27 @@ public class Payment {
 	
 	@NotBlank
 	@Size(max = 100)
-	private String name;
+	private String nome;
 	
 	@NotBlank
 	@Size(max = 19)
-	private String number;
+	private String numero;
 	
 	@NotBlank
 	@Size(max = 7)
-	private String expiration;
+	private String expiracao;
 	
 	@NotBlank
 	@Size(min = 3, max = 3)
-	private String code;
+	private String codigo;
 	
 	@NotNull
 	@Enumerated(EnumType.STRING)
-	private OrderStatus status;
+	private PaymentStatus status;
 	
 	@NotNull
-	private Long orderId;
+	private Long pedidoId;
 	@NotNull
-	private Long formeOfPayment;
+	private Long formaDePagamento;
 
 }
