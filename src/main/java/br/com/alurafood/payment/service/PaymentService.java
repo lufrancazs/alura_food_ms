@@ -23,9 +23,9 @@ public class PaymentService {
 	
 	
 	//Buscar Todos os Pagamentos
-	public Page<PaymentDTO> findAll(Pageable paginacao) {
+	public Page<PaymentDTO> findAll(Pageable pagination) {
 		return repository
-				.findAll(paginacao)
+				.findAll(pagination)
 				.map (p -> modelMapper.map(p, PaymentDTO.class));
 	}
 	
@@ -39,7 +39,7 @@ public class PaymentService {
 	//Criar Pagamento
 	public PaymentDTO created(PaymentDTO dto) {
 		Payment payment = modelMapper.map(dto, Payment.class);
-		payment.setStatus(PaymentStatus.CONFIRMADO);
+		payment.setStatus(PaymentStatus.CRIADO);
 		repository.save(payment);
 		
 		return modelMapper.map(payment, PaymentDTO.class);
