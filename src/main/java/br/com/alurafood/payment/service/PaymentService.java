@@ -1,5 +1,7 @@
 package br.com.alurafood.payment.service;
 
+import java.util.Optional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.alurafood.payment.DTO.PaymentDTO;
 import br.com.alurafood.payment.enums.PaymentStatus;
+import br.com.alurafood.payment.http.OrderClient;
 import br.com.alurafood.payment.model.Payment;
 import br.com.alurafood.payment.repository.PaymentRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,6 +24,9 @@ public class PaymentService {
 	@Autowired
 	private ModelMapper modelMapper;
 	
+	@Autowired
+	private OrderClient order;
+	
 	
 	//Buscar Todos os Pagamentos
 	public Page<PaymentDTO> findAll(Pageable pagination) {
@@ -33,7 +39,9 @@ public class PaymentService {
 	public PaymentDTO findById(Long id){
 		Payment payment = repository.findById(id).orElseThrow( () -> new EntityNotFoundException());
 		
-		return modelMapper.map(payment, PaymentDTO.class);
+		PaymentDTO dto = modelMapper.map(payment, PaymentDTO.class);
+		dto.setItens(order.findAllOrderItems(payment.getPedidoId()).getItens());
+		return dto;
 	}
 	
 	//Criar Pagamento
@@ -57,6 +65,30 @@ public class PaymentService {
 	//Excluir Pagamento
 	public void deletePayment(Long id) {
 		repository.deleteById(id);
+	}
+	
+	public void confirmPayment(Long id) {
+		Optional<Payment> payment = repository.findById(id);
+		
+		if(!payment.isPresent()) {
+			throw new EntityNotFoundException();
+		}
+		
+		payment.get().setStatus(PaymentStatus.CONFIRMADO);
+		repository.save(payment.get());
+		order.updatePayment(payment.get().getPedidoId());
+	}
+
+	public void updateStatus(Long id) {
+		Optional<Payment> payment = repository.findById(id);
+		
+		if(!payment.isPresent()) {
+			throw new EntityNotFoundException();
+		}
+		
+		payment.get().setStatus(PaymentStatus.CONFIRMADO_SEM_INTEGRACAO);
+		repository.save(payment.get());
+		
 	}
 
 }
