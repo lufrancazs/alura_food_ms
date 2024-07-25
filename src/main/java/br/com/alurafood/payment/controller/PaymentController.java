@@ -2,7 +2,6 @@ package br.com.alurafood.payment.controller;
 
 import java.net.URI;
 
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -54,8 +53,7 @@ public class PaymentController {
 		PaymentDTO payment = service.created(dto);
 		URI address = uriBuilder.path("/payments/{id}").buildAndExpand(payment.getId()).toUri();
 		
-		Message msg = new Message(("Criado pagamento com ID: " + payment.getId()).getBytes());
-		rabbitTemplate.send("payment.check", msg);
+		rabbitTemplate.convertAndSend("payment.check", payment);
 		
 		return ResponseEntity.created(address).body(payment);
 	}
